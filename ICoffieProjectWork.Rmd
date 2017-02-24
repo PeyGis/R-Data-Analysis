@@ -1,0 +1,232 @@
+---
+title: "Project Assignment 3"
+author: "Isaac Coffie"
+date: "November 11, 2015"
+output: word_document
+---
+
+**Does parent involvement in children's education an explanation for any observed improvement in student's academic performances?**
+
+## 1. Setup workspace and call in the data set(s)
+```{r}
+#set working directory for my project
+setwd("C:/StatsProject")
+
+#clear all variables from the previous environment
+rm(list = ls())
+
+#load dataset from the file directory
+load("C:/StatsProject/addhealth_W1.RDATA")
+load("C:/StatsProject/addhealth_W4.RDATA")
+
+```
+
+## 2. Create a data subset for my project
+```{r}
+#Selecting variables of interest to my project
+addhealth_orig<-AddHealth
+my_vars<-c("AID","BIO_SEX","age","H1SE4","H1ED11","H1ED12","H1WP5","H1RM1","H1WP17H")
+my_addhealth<-addhealth_orig[my_vars]
+
+#variables from addHealth wave 4 
+wave4_vars<-c("aid","h4da1")
+
+#create a subset with these two variables
+addhealth4_subset<-addhealth_public4[wave4_vars]
+
+#rename AID in addHealth wave 1 to "aid"
+names(my_addhealth)[1]<-"aid"
+
+#merge the two wave
+my_addhealth<-merge(my_addhealth, addhealth4_subset, by="aid", all = TRUE)
+```
+
+## 3. Label variables and run frequency tables
+
+```{r}
+#form a frequency table 
+library(descr)
+freq(as.ordered(my_addhealth$BIO_SEX))
+freq(as.ordered(my_addhealth$H1SE4))
+freq(as.ordered(my_addhealth$H1ED11))
+freq(as.ordered(my_addhealth$H1ED12))
+freq(as.ordered(my_addhealth$H1WP5))
+freq(as.ordered(my_addhealth$H1WP17H))
+freq(as.ordered(my_addhealth$H1RM1))
+freq(as.ordered(my_addhealth$h4da1))
+```
+
+## 4. Data management
+```{r}
+
+#(C)Replace "don't know", "Legitimate skip" and "refused" with NA
+
+#Grade in English and Art
+my_addhealth$H1ED11[my_addhealth$H1ED11==96 | my_addhealth$H1ED11==97 |my_addhealth$H1ED11==98]<-NA
+freq(as.ordered(my_addhealth$H1ED11))
+
+#Grade in Mathematics
+my_addhealth$H1ED12[my_addhealth$H1ED12==96 | my_addhealth$H1ED12==97 |my_addhealth$H1ED12==98]<-NA
+freq(as.ordered(my_addhealth$H1ED12))
+
+#Parent decision on when to watch tv programs
+my_addhealth$H1WP5[my_addhealth$H1WP5==6 | my_addhealth$H1WP5==7 |my_addhealth$H1WP5==8 |my_addhealth$H1WP5==9]<-NA
+freq(as.ordered(my_addhealth$H1WP5))
+
+#conversation with parent on school work or grade
+my_addhealth$H1WP17H[my_addhealth$H1WP17H==6 | my_addhealth$H1WP17H==7  | my_addhealth$H1WP17H==8]<-NA
+freq(as.ordered(my_addhealth$H1WP17H))
+
+#how intelligent are you compared to your peers
+my_addhealth$H1SE4[my_addhealth$H1SE4==96 | my_addhealth$H1SE4==98]<-NA
+freq(as.ordered(my_addhealth$H1SE4))
+
+#Number of hours spent on watching TV and videos
+my_addhealth$h4da1[my_addhealth$h4da1==996 | my_addhealth$h4da1==998 |my_addhealth$h4da1==144 | my_addhealth$h4da1==150]<-NA
+freq(as.ordered(my_addhealth$h4da1))
+
+#Educational background of parent
+my_addhealth$H1RM1[my_addhealth$H1RM1==12 | my_addhealth$H1RM1==96 | my_addhealth$H1RM1==97 |my_addhealth$H1RM1==98]<-NA
+freq(as.ordered(my_addhealth$H1RM1))
+```
+
+
+## 5. Univariate graphing
+```{r}
+#A frequency distribution table and a bar graph for categorical variables
+
+#Grade in English
+freq(as.ordered(my_addhealth$H1ED11), names=c("A","B","C","D or low","No Exams","Not graded"), main="Respondents Grade in English and Arts", xlab="Grades from A to F", ylab="Frequency of grades", col = c("yellow","red","green","blue"))
+```
+Judging by the  bar plot shown above,  we can clearly conclude that the category of gradepoint award which had the highest frequency is Grade "B" followed by "A" then to "C". However, the grade point with labels  'D or below', 'Not graded' and 'No exams' had the least frequency was.
+
+```{r}
+#Grade in Mathematics
+freq(as.ordered(my_addhealth$H1ED12), name=c("A","B","C", "D or low", "No Exams", "Not graded"),main="Students Grade in Mathematics", xlab="Grades from A to F", ylab="Frequency of grades", col = c("cyan","yellow","red","green"))
+```
+The bar plot above reveals that the category of grade awards which had the highest frequency is Grade "B" followed by "A" then "C". However, the grade point with the least frequency was D or below, Not graded and others.
+
+```{r}
+#parents controlling their children on what tv programs to watch
+freq(as.ordered(my_addhealth$H1WP5), name=c("YES","NO"), main="Parents decide on Children habits on Tv and Movies ", xlab="Yes or No Response", ylab="Frequency of responses",col=c("orange"))
+```
+using the graph above, majority (more than 4000 people) said  their parents do not set rules for them on what television programs and movies they should watch.On the other hand, less than 2000 responded that their parents control their watching of Televisoin programs.   
+
+```{r}
+#discussion with parent on school work
+freq(as.ordered(my_addhealth$H1WP17H), name=c("YES","NO"), main="Discussion with parents on school project ", xlab="Yes or No Response", ylab="Frequency of responses", col=c("cyan"))
+```
+From the figure above, most of the respondents(more than 3500) said they do not have a regular discussion with their parents on their school projects, grades and assignments.
+
+```{r}
+#how intelligent are you compared to your peers
+freq(as.ordered(my_addhealth$H1SE4), names=c("Below avg","Slightly below avg","Above avg","Slightly above avg","Moderately above avg","Extremely above avg"), main="Feelings on personal intelligence", xlab="Ranges on feelings", ylab="Frequency of intelligence", col = c("yellow","red","green","blue","orange","brown"))
+```
+The diagram above shows that the category of intelligence feeling that had the highest frequecny were reported to be the ones above average, followed by moderately above average and slightly above average. However, people who said their intelligence level was below that of their peers was very low.
+
+```{r}
+#Histogram for quantitative variables
+
+#Number of hours spent on watching TV and videos
+hist(my_addhealth$h4da1, main = "Number of hours spent on Tv and Movies", xlab="Time in Hours", ylab="Frequency of hours spent on Tv's & movies", col=c("purple"))
+```
+
+From the above diagram, the number of hours spent on watching movies and Tv was concentrated between the hours of 0 to 40. Again, the data was heavily skewed to the left after the 60th hours of watching movies and Tv 's was recorded. 
+
+```{r}
+#Ages of respondent
+hist(my_addhealth$age, main = "Ages of respondents", xlab="Ages in years", ylab="Frequency of ages", col = c("yellow"))
+```
+From the figure above, the distribution is almost close to a symmetrical distribution with most of the ages centered at 16.5 years. Also, the variation between the data seems to be very small enough. 
+
+## 6. Summary statistics (quantitative variables only)
+```{r}
+#Mean and standard deviation of respondent'sage
+mean(my_addhealth$age,na.rm = TRUE)
+sd(my_addhealth$age,na.rm = TRUE)
+```
+The mean age of respondents is 16.541 and the distance between the mean age and the individual age is 1.581. Thus, the individual ages of respondents are not too far away from the mean ages.
+
+```{r}
+##Mean and standard deviation of the number of hours spent watching television
+mean(my_addhealth$h4da1,na.rm = TRUE)
+sd(my_addhealth$h4da1,na.rm = TRUE)
+```
+
+The mean number of hours spent on watching television is 13.569 and the variation of the individual data from the mean is 13.686. This means the there is a wider distance between the mean and the actual data of respondents.
+```{r}
+#Summary of ages and number of number of hours spent on watching television
+summary(my_addhealth$h4da1)
+summary(my_addhealth$age)
+```
+The median age is 16.51 years.
+The IQR of the ages of respondents = 3rd Qu - 1st Qu = (17.76- 15.26) years = 2.5 years.
+
+Also, the IQR of the number of hours spent on watching televison and movies is (20-5) = 15 hours.
+The median number of hours spent on movies is 10 hours.
+
+## 7. Bivariate output and graphing
+```{r}
+#create a new variable mycoodebook$intel to collapse response variables 
+my_addhealth$intel<-rep(NA, nrow(my_addhealth))
+ 
+my_addhealth$intel[my_addhealth$H1SE4 == 1 | my_addhealth$H1SE4 == 2 | my_addhealth$H1SE4 == 3]<-1
+my_addhealth$intel[my_addhealth$H1SE4 == 4 | my_addhealth$H1SE4 == 5 | my_addhealth$H1SE4 == 6]<-2
+
+
+#cOLLAPSE VARIABLE H1WP5 into two categorical responses
+my_addhealth$parent<-rep(NA, nrow(my_addhealth))
+my_addhealth$parent[my_addhealth$H1WP5 == 0]<-1
+my_addhealth$parent[my_addhealth$H1WP5 == 1]<-2
+
+#collapse variable H1ED11 (english grades)into a new variable my_addhealth$english
+my_addhealth$english<-rep(NA, nrow(my_addhealth))
+my_addhealth$english[my_addhealth$H1ED11 == 1 | my_addhealth$H1ED11 == 2 | my_addhealth$H1ED11 == 3]<-1
+my_addhealth$english[my_addhealth$H1ED11 == 4 | my_addhealth$H1ED11 == 5 | my_addhealth$H1ED11 == 6]<-2
+```
+
+
+```{r}
+#collapse variable H1ED12 (maths grades)into a new variable my_addhealth$maths
+my_addhealth$maths<-rep(NA, nrow(my_addhealth))
+ 
+my_addhealth$maths[my_addhealth$H1ED12 == 1 | my_addhealth$H1ED12 == 2 | my_addhealth$H1ED12 == 3] <-1
+my_addhealth$maths[my_addhealth$H1ED12 == 4 | my_addhealth$H1ED12 == 5 | my_addhealth$H1ED12 == 6]<-2
+
+
+#Collapse variable H1WP17H (concersation with parent) into two responses
+my_addhealth$chat<-rep(NA, nrow(my_addhealth))
+my_addhealth$chat[my_addhealth$H1WP17H == 0]<-1
+my_addhealth$chat[my_addhealth$H1WP17H == 1]<-2
+```
+
+
+```{r}
+#create a table to illustrate both  the response variable(grades in maths) and explanatory variable (parents decision on what Tv programs kids should watch )
+newtable<-table(my_addhealth$maths, my_addhealth$parent)
+tab1_colProp <-round( prop.table(newtable, 2),3)                     
+tab1_colProp 
+barplot(tab1_colProp[1,], col=c("cyan"), names=c("Parent decides on Tv","Parents don't decide on Tv"), main="Student's academic performance and parents decison on Tv's & movies", xlab="Exp var(Tv and movies habits)", ylab = "resp var(Grade in Mathematics)")
+```
+Using the barplot above, we can verify that there is a 81.8% for students to pass mathematics with a semester grade of A and B given that their parents set rules for them as to when and what Tv programs to watch. However, there is 77.7% for a student to pass in mathematics with a grade of B or bettwe given that their parents do not set rules for them as to what Tv and movies they should watch. I chose bar chart because it is easy to analyse responses using the height of the response variables.  
+
+```{r}
+#A bivariet graph showing ones intelligence level feeling and regular discussion with parents 
+
+tab1<-table(my_addhealth$intel, my_addhealth$chat)
+tab1_colProp2 <-round( prop.table(tab1, 2),3)                     
+tab1_colProp2   
+barplot(tab1_colProp2[2,], col=c("green"), names=c("Converse with parents","Don't converse with parent"),main="Intelligence level and regular discussion with parents", xlab="Expl var(Conversation with parent)", ylab = "resp var(Intelliigence feeling)")
+```
+From the figure above, there is a 51.1% chance for respondents who regularly have conversation with their parents on school project and assignments to have an intelligent level above their peers. On the filp side, there is a 58.5% probability for students who do not converse with their parent to have an intelligence level above their peers. I also chose this graph because it makes comparision between two variables more interperatable and eaier.  
+## 8. Bivariate analysis
+```{r}
+
+```
+
+## 9. Save and quit
+```{r}
+#SAVE DATA AND VARIABLES
+save(my_vars,my_addhealth,file = "dataSubset.RDATA")
+
+```
